@@ -112,3 +112,76 @@ def plot_images_and_masks(sample_id):
     
 sample_id = 'case144_day0_slice_0068'
 plot_images_and_masks(sample_id)
+
+
+# Provide a list of IDs
+list_ids = train_data[(train_data['case_day']=='case123_day0') & (train_data['segmentation'].notna())].tail()['id'].tolist()
+for sample_id in list_ids:
+    plot_images_and_masks(sample_id)
+    
+    
+# See images for a case number and day number
+# create animation of the case
+case_num = 'case123'
+day_num = 'day0'
+list_images_data = []
+for images in os.listdir(f'/content/train/{case_num}/{case_num}_{day_num}/scans/'):
+    image_data = plt.imread(f'/content/train/{case_num}/{case_num}_{day_num}/scans/' + images)
+    list_images_data.append(image_data)
+create_animation(list_images_data)
+
+
+list_images = list(data_dir.rglob('*/*/*/*'))
+
+nx, ny = 5, 2
+fig, axes = plt.subplots(ny, nx, figsize=(24, 9))
+images = random.choices(list_images, k=nx*ny)
+
+for num, img in enumerate(images):
+    i = num % nx
+    j = num // nx
+    image = Img.open(img)
+    image = np.array(image)
+    axes[j, i].axis('off')
+    axes[j, i].set_title(str(img.parent).strip('/scans').split('/')[-1], color='red')
+    axes[j, i].imshow(image / image.max())
+    
+plt.subplots_adjust(wspace=0.05, hspace=0.05)
+plt.show()
+
+def rle_decode2(rle, height, width , fill=255):
+    s = rle.split()
+    start, length = [np.asarray(x, dtype=int) for x in (s[0:][::2], s[1:][::2])]
+    start -= 1
+    mask = np.zeros(height*width, dtype=np.uint8)
+    for i, l in zip(start, length):
+        mask[i:i+l] = fill
+    mask = mask.reshape(width,height).T
+    mask = np.ascontiguousarray(mask)
+    return mask
+
+X = train_data[train_data['segmentation'].notnull()]
+
+nx, ny = 3, 5
+fig, axes = plt.subplots(ny, nx, figsize=(20, 15))
+
+
+for i in range(ny):
+
+    sample = X.iloc[random.randint(0, X.shape[0])]
+
+    height, width = 255, 255
+    mask = rle_decode2(sample['segmentation'], sample['height'], sample['width'], 255)
+    mask = (mask / 255).astype(int).T
+
+    if i == 0 : axes[i, 0].set_title("mask", color='red')
+    axes[i, 0].set_ylabel(sample['id'])
+    axes[i, 0].imshow(mask)
+
+    image = Img.open(sample['whole_path'])
+    if i == 0 : axes[i, 1].set_title("image", color='red')
+    axes[i, 1].imshow(np.array(image))
+
+    result_image = color.label2rgb(mask, np.array(image) / np.array(image).max())
+    if i == 0 : axes[i, 2].set_title("mask_image overlay", color='red')
+    axes[i, 2].imshow(result_image)
