@@ -1,5 +1,9 @@
 # cancer-segmantation
 
+In order to diagnose cancer, it must be treated with radiation that is harmful to the body. If the body is exposed to radiation or laser, it will inevitably affect healthy organs. Therefore, if we create and visualize a model that learns which part is a healthy organ part, it will be of great help to doctors as it will be easier for doctors to set the treatment area and for patients to reduce the risk.
+
+
+
 ![스크린샷 2022-08-19 오후 5 55 20](https://user-images.githubusercontent.com/41169144/185712375-dfb52731-bc42-4c1c-8bc5-4cdfd6a38375.png)
 
 ![스크린샷 2022-08-19 오후 5 55 30](https://user-images.githubusercontent.com/41169144/185712409-50874464-ba4c-4324-9f69-246ec20c661f.png)
